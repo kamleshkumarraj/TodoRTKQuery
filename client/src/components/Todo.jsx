@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { AiOutlineEdit, AiOutlineDelete } from "react-icons/ai";
 import { FaPlus } from "react-icons/fa";
+import axios from 'axios'
 
 function Todo() {
     const [inputValue, setInputValue] = useState('');
@@ -9,19 +10,42 @@ function Todo() {
     const [loading, setLoading] = useState(false);
     console.log(todos)
 
-    useEffect(() => {
-        setLoading(true)
+    const addTodo = async () => {
+        const options = {
+            url : "http://localhost:4000/api/v1/todo/create",
+            method : "POST",
+            data : {
+                content : inputValue
+            }
+        }
+        const response = await axios(options)
+        if(response?.data?.success){
+            setInputValue("")
+            refetchTodo()
+            console.log("Successfully added todo")
+        }else{
+            console.log("Failed to add todo")
+        }
+    }
+
+    const refetchTodo = () => {
+        
         fetch("http://localhost:4000/api/v1/todo/get-all-todos")
         .then(response => response.json())
         .then(data => {
             setLoading(false)
-            setTodos(data.data)
+            setTodos(data.data.reverse())
         })
         .catch(error => {
             setLoading(false)
             setErrors(error)
             console.log(error)
         })
+    }
+
+    useEffect(() => {
+        setLoading(true)
+        refetchTodo()
     },[])
 
     if(loading) return <div>Loading...</div>
@@ -40,7 +64,7 @@ function Todo() {
           className="flex-1 p-2 text-black rounded-lg outline-none focus:ring-2 focus:ring-purple-300 bg-white/70"
         />
         <button
-          
+          onClick={addTodo}
           className="p-2 text-white bg-purple-600 rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-300"
         >
           <FaPlus />
