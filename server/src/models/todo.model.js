@@ -10,7 +10,8 @@ import mongoose from 'mongoose';
     },
     status : {
         type : String,
-        enum : ["Pending" , "Completed" , "Progress"]
+        enum : ["Pending" , "Completed" , "Progress"],
+        default : 'Pending'
     }
 } , {timestamps : true})
 
